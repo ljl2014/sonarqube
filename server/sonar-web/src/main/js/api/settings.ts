@@ -25,7 +25,20 @@ export function getDefinitions(component: string | null, branch?: string): Promi
   return getJSON('/api/settings/list_definitions', { branch, component }).then(r => r.definitions);
 }
 
-export function getValues(keys: string, component?: string, branch?: string): Promise<any> {
+export interface SettingValue {
+  inherited?: boolean;
+  key: string;
+  parentValue?: string;
+  parentValues?: string[];
+  value?: any;
+  values?: string[];
+}
+
+export function getValues(
+  keys: string,
+  component?: string,
+  branch?: string
+): Promise<SettingValue[]> {
   return getJSON('/api/settings/values', { keys, component, branch }).then(r => r.settings);
 }
 
