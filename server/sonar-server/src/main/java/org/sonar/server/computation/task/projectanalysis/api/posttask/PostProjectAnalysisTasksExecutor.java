@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.api.ce.posttask.Analysis;
 import org.sonar.api.ce.posttask.Branch;
 import org.sonar.api.ce.posttask.CeTask;
 import org.sonar.api.ce.posttask.PostProjectAnalysisTask;
@@ -47,6 +48,8 @@ import org.sonar.server.computation.task.step.ComputationStepExecutor;
 import static com.google.common.collect.FluentIterable.from;
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
+import static java.util.Optional.empty;
+import static java.util.Optional.ofNullable;
 import static org.sonar.api.ce.posttask.CeTask.Status.FAILED;
 import static org.sonar.api.ce.posttask.CeTask.Status.SUCCESS;
 
@@ -96,13 +99,13 @@ public class PostProjectAnalysisTasksExecutor implements ComputationStepExecutor
       return;
     }
 
-    ProjectAnalysis projectAnalysis = createProjectAnalysis(allStepsExecuted ? SUCCESS : FAILED);
+    ProjectAnalysisImpl projectAnalysis = createProjectAnalysis(allStepsExecuted ? SUCCESS : FAILED);
     for (PostProjectAnalysisTask postProjectAnalysisTask : postProjectAnalysisTasks) {
       executeTask(projectAnalysis, postProjectAnalysisTask);
     }
   }
 
-  private static void executeTask(ProjectAnalysis projectAnalysis, PostProjectAnalysisTask postProjectAnalysisTask) {
+  private static void executeTask(ProjectAnalysisImpl projectAnalysis, PostProjectAnalysisTask postProjectAnalysisTask) {
     try {
       postProjectAnalysisTask.finished(projectAnalysis);
     } catch (Exception e) {
@@ -110,13 +113,18 @@ public class PostProjectAnalysisTasksExecutor implements ComputationStepExecutor
     }
   }
 
-  private ProjectAnalysis createProjectAnalysis(CeTask.Status status) {
+  private ProjectAnalysisImpl createProjectAnalysis(CeTask.Status status) {
     Long analysisDate = getAnalysisDate();
 
-    return new ProjectAnalysis(
+    AnalysisImpl analysis = null;
+    if (analysisDate != null) {
+      analysis = new AnalysisImpl(analysisMetadataHolder.getUuid(), analysisDate);
+    }
+
+    return new ProjectAnalysisImpl(
       new CeTaskImpl(this.ceTask.getUuid(), status),
       createProject(this.ceTask),
-      analysisDate,
+      analysis,
       analysisDate == null ? system2.now() : analysisDate,
       ScannerContextImpl.from(reportReader.readContextProperties()),
       status == SUCCESS ? createQualityGate() : null,
@@ -184,24 +192,24 @@ public class PostProjectAnalysisTasksExecutor implements ComputationStepExecutor
       .toList();
   }
 
-  private static class ProjectAnalysis implements PostProjectAnalysisTask.ProjectAnalysis {
+  private static class ProjectAnalysisImpl implements PostProjectAnalysisTask.ProjectAnalysis {
     private final CeTask ceTask;
     private final Project project;
-    @Nullable
-    private final Long analysisDate;
     private final long date;
     private final ScannerContext scannerContext;
     @Nullable
     private final QualityGate qualityGate;
     @Nullable
     private final Branch branch;
+    @Nullable
+    private final Analysis analysis;
 
-    private ProjectAnalysis(CeTask ceTask, Project project,
-      @Nullable Long analysisDate, long date,
+    private ProjectAnalysisImpl(CeTask ceTask, Project project,
+      @Nullable Analysis analysis, long date,
       ScannerContext scannerContext, @Nullable QualityGate qualityGate, @Nullable Branch branch) {
       this.ceTask = requireNonNull(ceTask, "ceTask can not be null");
       this.project = requireNonNull(project, "project can not be null");
-      this.analysisDate = analysisDate;
+      this.analysis = analysis;
       this.date = date;
       this.scannerContext = requireNonNull(scannerContext, "scannerContext can not be null");
       this.qualityGate = qualityGate;
@@ -220,7 +228,7 @@ public class PostProjectAnalysisTasksExecutor implements ComputationStepExecutor
 
     @Override
     public java.util.Optional<Branch> getBranch() {
-      return java.util.Optional.ofNullable(branch);
+      return ofNullable(branch);
     }
 
     @Override
@@ -236,10 +244,12 @@ public class PostProjectAnalysisTasksExecutor implements ComputationStepExecutor
 
     @Override
     public java.util.Optional<Date> getAnalysisDate() {
-      if (analysisDate == null) {
-        return java.util.Optional.empty();
-      }
-      return java.util.Optional.of(new Date(analysisDate));
+      return analysis == null ? empty() : ofNullable(analysis.getDate());
+    }
+
+    @Override
+    public java.util.Optional<Analysis> getAnalysis() {
+      return ofNullable(analysis);
     }
 
     @Override
@@ -252,12 +262,32 @@ public class PostProjectAnalysisTasksExecutor implements ComputationStepExecutor
       return "ProjectAnalysis{" +
         "ceTask=" + ceTask +
         ", project=" + project +
-        ", analysisDate=" + analysisDate +
         ", date=" + date +
         ", scannerContext=" + scannerContext +
         ", qualityGate=" + qualityGate +
+        ", analysis=" + analysis +
         '}';
     }
   }
 
+  private static class AnalysisImpl implements Analysis {
+
+    private final String analysisUuid;
+    private final long date;
+
+    private AnalysisImpl(String analysisUuid, long date) {
+      this.analysisUuid = analysisUuid;
+      this.date = date;
+    }
+
+    @Override
+    public String getAnalysisUuid() {
+      return analysisUuid;
+    }
+
+    @Override
+    public Date getDate() {
+      return new Date(date);
+    }
+  }
 }

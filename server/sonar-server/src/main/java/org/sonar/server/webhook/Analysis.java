@@ -18,22 +18,43 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.api.ce.posttask;
+package org.sonar.server.webhook;
 
+import com.google.common.base.Objects;
 import java.util.Date;
 
-public interface Analysis {
-  /**
-   * UUID of the analysis
-   */
-  String getAnalysisUuid();
+public final class Analysis {
+  private final String uuid;
+  private final Date date;
 
-  /**
-   * Date of the analysis.
-   * <p>
-   * This date is the same as the date of the project analysis report and therefore as the analysis in DB. It can be
-   * missing when the status of the task is {@link org.sonar.api.ce.posttask.CeTask.Status#FAILED FAILED}.
-   * </p>
-   */
-  Date getDate();
+  public Analysis(String uuid, Date date) {
+    this.uuid = uuid;
+    this.date = date;
+  }
+
+  public String getUuid() {
+    return uuid;
+  }
+
+  public Date getDate() {
+    return date;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof Analysis)) {
+      return false;
+    }
+    Analysis analysis = (Analysis) o;
+    return Objects.equal(uuid, analysis.uuid) &&
+      Objects.equal(date, analysis.date);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hashCode(uuid, date);
+  }
 }
