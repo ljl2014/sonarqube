@@ -21,9 +21,7 @@ package org.sonar.server.computation.task.projectanalysis.container;
 
 import java.util.Arrays;
 import java.util.List;
-
 import javax.annotation.Nullable;
-
 import org.sonar.ce.organization.DefaultOrganizationLoader;
 import org.sonar.ce.queue.CeTask;
 import org.sonar.ce.settings.SettingsLoader;
@@ -76,13 +74,12 @@ import org.sonar.server.computation.task.projectanalysis.issue.MovedIssueVisitor
 import org.sonar.server.computation.task.projectanalysis.issue.NewEffortAggregator;
 import org.sonar.server.computation.task.projectanalysis.issue.NewEffortCalculator;
 import org.sonar.server.computation.task.projectanalysis.issue.RemoveProcessedComponentsVisitor;
-import org.sonar.server.computation.task.projectanalysis.issue.ResolvedShortBranchIssuesFactory;
+import org.sonar.server.computation.task.projectanalysis.issue.ResolvedShortBranchIssuesLoader;
 import org.sonar.server.computation.task.projectanalysis.issue.RuleRepositoryImpl;
 import org.sonar.server.computation.task.projectanalysis.issue.RuleTagsCopier;
 import org.sonar.server.computation.task.projectanalysis.issue.RuleTypeCopier;
 import org.sonar.server.computation.task.projectanalysis.issue.ScmAccountToUser;
 import org.sonar.server.computation.task.projectanalysis.issue.ScmAccountToUserLoader;
-import org.sonar.server.computation.task.projectanalysis.issue.ResolvedShortBranchIssuesFactory;
 import org.sonar.server.computation.task.projectanalysis.issue.ShortBranchTrackerExecution;
 import org.sonar.server.computation.task.projectanalysis.issue.TrackerBaseInputFactory;
 import org.sonar.server.computation.task.projectanalysis.issue.TrackerExecution;
@@ -247,7 +244,7 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       TrackerBaseInputFactory.class,
       TrackerRawInputFactory.class,
       TrackerMergeBranchInputFactory.class,
-      ResolvedShortBranchIssuesFactory.class,
+      ResolvedShortBranchIssuesLoader.class,
       Tracker.class,
       TrackerExecution.class,
       ShortBranchTrackerExecution.class,
@@ -256,7 +253,7 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       BaseIssuesLoader.class,
       IssueTrackingDelegator.class,
       BranchPersister.class,
-      ResolvedShortBranchIssuesFactory.class,
+      ResolvedShortBranchIssuesLoader.class,
       IssueStatusCopier.class,
 
       // filemove

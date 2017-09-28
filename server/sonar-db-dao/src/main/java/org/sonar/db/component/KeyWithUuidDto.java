@@ -19,26 +19,24 @@
  */
 package org.sonar.db.component;
 
+import javax.annotation.concurrent.Immutable;
+
+@Immutable
 public class KeyWithUuidDto {
 
-  private String key;
-  private String uuid;
+  private final String key;
+  private final String uuid;
+
+  public KeyWithUuidDto(String key, String uuid) {
+    this.key = key;
+    this.uuid = uuid;
+  }
 
   public String key() {
     return key;
   }
 
-  public KeyWithUuidDto setKey(String key) {
-    this.key = key;
-    return this;
-  }
-
   public String uuid() {
     return uuid;
-  }
-
-  public KeyWithUuidDto setUuid(String uuid) {
-    this.uuid = uuid;
-    return this;
   }
 }
