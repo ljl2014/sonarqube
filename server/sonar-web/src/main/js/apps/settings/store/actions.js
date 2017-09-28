@@ -37,9 +37,15 @@ import { getSettingsAppDefinition, getSettingsAppChangedValue } from '../../../s
 export const fetchSettings = (componentKey, branch) => dispatch => {
   return getDefinitions(componentKey, branch)
     .then(definitions => {
-      const withoutLicenses = definitions.filter(definition => definition.type !== 'LICENSE');
-      dispatch(receiveDefinitions(withoutLicenses));
-      const keys = withoutLicenses.map(definition => definition.key).join();
+      const filtered = definitions
+        .filter(definition => definition.type !== 'LICENSE')
+        // do not display this setting on project level
+        .filter(
+          definition =>
+            componentKey == null || definition.key !== 'sonar.branch.longLivedBranches.regex'
+        );
+      dispatch(receiveDefinitions(filtered));
+      const keys = filtered.map(definition => definition.key).join();
       return getValues(keys, componentKey, branch);
     })
     .then(settings => {
