@@ -343,7 +343,18 @@
         and not exists(select 1 from snapshots sp where sp.component_uuid=p.uuid)
       </if>
   </sql>
-
+  
+  <select id="selectFilesWithPathFromProject" parameterType="string" resultType="ComponentWithPath">
+    SELECT
+      p.id, p.kee, p.uuid, p.path
+    FROM 
+      projects p
+    WHERE
+      p.enabled =  ${_true} 
+      and p.project_uuid = #{projectUuid,jdbcType=VARCHAR}
+      and p.scope in ('FIL', 'UTS')
+  </select>
+  
   <select id="selectDescendants" resultType="Component">
     select
       <include refid="componentColumns"/>

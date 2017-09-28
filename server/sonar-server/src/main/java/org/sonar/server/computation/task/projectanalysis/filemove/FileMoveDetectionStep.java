@@ -31,19 +31,17 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
-import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.hash.SourceLinesHashesComputer;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentTreeQuery;
-import org.sonar.db.component.ComponentTreeQuery.Strategy;
+import org.sonar.db.component.ComponentWithPathDto;
 import org.sonar.db.source.FileSourceDto;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
@@ -58,13 +56,11 @@ import org.sonar.server.computation.task.step.ComputationStep;
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Splitter.on;
 import static com.google.common.collect.FluentIterable.from;
-import static java.util.Arrays.asList;
 import static org.sonar.server.computation.task.projectanalysis.component.ComponentVisitor.Order.POST_ORDER;
 
 public class FileMoveDetectionStep implements ComputationStep {
   protected static final int MIN_REQUIRED_SCORE = 85;
   private static final Logger LOG = Loggers.get(FileMoveDetectionStep.class);
-  private static final List<String> FILE_QUALIFIERS = asList(Qualifiers.FILE, Qualifiers.UNIT_TEST_FILE);
   private static final Splitter LINES_HASHES_SPLITTER = on('\n');
 
   private final AnalysisMetadataHolder analysisMetadataHolder;
@@ -109,8 +105,8 @@ public class FileMoveDetectionStep implements ComputationStep {
       return;
     }
 
-    Set<String> addedFileKeys = ImmutableSet.copyOf(Sets.difference(reportFilesByKey.keySet(), dbFilesByKey.keySet()));
-    Set<String> removedFileKeys = ImmutableSet.copyOf(Sets.difference(dbFilesByKey.keySet(), reportFilesByKey.keySet()));
+    Set<String> addedFileKeys = Sets.difference(reportFilesByKey.keySet(), dbFilesByKey.keySet());
+    Set<String> removedFileKeys = Sets.difference(dbFilesByKey.keySet(), reportFilesByKey.keySet());
 
     // can find matches if at least one of the added or removed files groups is empty => abort
     if (addedFileKeys.isEmpty() || removedFileKeys.isEmpty()) {
@@ -149,18 +145,11 @@ public class FileMoveDetectionStep implements ComputationStep {
 
   private Map<String, DbComponent> getDbFilesByKey() {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      // FIXME no need to use such a complex query, joining on SNAPSHOTS and retrieving all column of table PROJECTS, replace with dedicated
-      // mapper method
-      List<ComponentDto> componentDtos = dbClient.componentDao().selectDescendants(
-        dbSession,
-        ComponentTreeQuery.builder()
-          .setBaseUuid(rootHolder.getRoot().getUuid())
-          .setQualifiers(FILE_QUALIFIERS)
-          .setStrategy(Strategy.LEAVES)
-          .build());
-      return from(componentDtos)
-        .transform(componentDto -> new DbComponent(componentDto.getId(), componentDto.getDbKey(), componentDto.uuid(), componentDto.path()))
-        .uniqueIndex(DbComponent::getKey);
+      List<ComponentWithPathDto> componentDtos = dbClient.componentDao().selectFilesWithPathFromProject(dbSession, rootHolder.getRoot().getUuid());
+
+      return componentDtos.stream()
+        .map(dto -> new DbComponent(dto.getId(), dto.getDbKey(), dto.uuid(), dto.path()))
+        .collect(Collectors.toMap(DbComponent::getKey, x -> x));
     }
   }
 
@@ -285,19 +274,19 @@ public class FileMoveDetectionStep implements ComputationStep {
 
   @Immutable
   private static final class DbComponent {
-    private final long id;
+    private final int id;
     private final String key;
     private final String uuid;
     private final String path;
 
-    private DbComponent(long id, String key, String uuid, String path) {
+    private DbComponent(int id, String key, String uuid, String path) {
       this.id = id;
       this.key = key;
       this.uuid = uuid;
       this.path = path;
     }
 
-    public long getId() {
+    public int getId() {
       return id;
     }
 

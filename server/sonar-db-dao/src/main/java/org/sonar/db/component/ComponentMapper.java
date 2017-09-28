@@ -75,6 +75,7 @@ public interface ComponentMapper {
 
   List<ComponentDto> selectDescendants(@Param("query") ComponentTreeQuery query, @Param("baseUuid") String baseUuid, @Param("baseUuidPath") String baseUuidPath);
 
+
   /**
    * Returns all enabled projects (Scope {@link org.sonar.api.resources.Scopes#PROJECT} and qualifier
    * {@link org.sonar.api.resources.Qualifiers#PROJECT}) no matter if they are ghost project, provisioned projects or
@@ -89,6 +90,8 @@ public interface ComponentMapper {
    */
   List<ComponentDto> selectDescendantModules(@Param("moduleUuid") String moduleUuid, @Param(value = "scope") String scope,
     @Param(value = "excludeDisabled") boolean excludeDisabled);
+
+  List<ComponentWithPathDto> selectFilesWithPathFromProject(@Param("projectUuid") String projectUuid);
 
   /**
    * Return all files from a given project uuid and scope

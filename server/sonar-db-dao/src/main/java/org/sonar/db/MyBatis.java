@@ -42,6 +42,7 @@ import org.sonar.db.component.ComponentKeyUpdaterMapper;
 import org.sonar.db.component.ComponentLinkDto;
 import org.sonar.db.component.ComponentLinkMapper;
 import org.sonar.db.component.ComponentMapper;
+import org.sonar.db.component.ComponentWithPathDto;
 import org.sonar.db.component.FilePathWithHashDto;
 import org.sonar.db.component.KeyWithUuidDto;
 import org.sonar.db.component.ResourceDto;
@@ -146,6 +147,7 @@ public class MyBatis implements Startable {
     confBuilder.loadAlias("CeTaskCharacteristic", CeTaskCharacteristicDto.class);
     confBuilder.loadAlias("Component", ComponentDto.class);
     confBuilder.loadAlias("ComponentLink", ComponentLinkDto.class);
+    confBuilder.loadAlias("ComponentWithPath", ComponentWithPathDto.class);
     confBuilder.loadAlias("ComponentWithSnapshot", ComponentDtoWithSnapshotId.class);
     confBuilder.loadAlias("CustomMeasure", CustomMeasureDto.class);
     confBuilder.loadAlias("DuplicationUnit", DuplicationUnitDto.class);

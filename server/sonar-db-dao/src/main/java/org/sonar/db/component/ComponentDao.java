@@ -214,6 +214,10 @@ public class ComponentDao implements Dao {
     ComponentDto component = componentOpt.get();
     return mapper(dbSession).selectDescendants(query, componentOpt.get().uuid(), query.getUuidPath(component));
   }
+  
+  public List<ComponentWithPathDto> selectFilesWithPathFromProject(DbSession dbSession, String projectUuid) {
+    return mapper(dbSession).selectFilesWithPathFromProject(projectUuid);
+  }
 
   public ComponentDto selectOrFailByKey(DbSession session, String key) {
     Optional<ComponentDto> component = selectByKey(session, key);
