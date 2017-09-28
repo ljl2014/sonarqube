@@ -20,6 +20,7 @@
 import { omitBy } from 'lodash';
 import { getJSON, RequestData, post, postJSON } from '../helpers/request';
 import { TYPE_PROPERTY_SET } from '../apps/settings/constants';
+import throwGlobalError from '../app/utils/throwGlobalError';
 
 export function getDefinitions(component: string | null, branch?: string): Promise<any> {
   return getJSON('/api/settings/list_definitions', { branch, component }).then(r => r.definitions);
@@ -62,6 +63,14 @@ export function setSettingValue(
   }
 
   return post('/api/settings/set', data);
+}
+
+export function setSimpleSettingValue(parameters: {
+  key: string;
+  value: string;
+  component?: string;
+}): Promise<void | Response> {
+  return post('/api/settings/set', parameters).catch(throwGlobalError);
 }
 
 export function resetSettingValue(key: string, component?: string, branch?: string): Promise<void> {
