@@ -54,17 +54,20 @@ public class CustomMeasuresCopyStep implements ComputationStep {
 
   @Override
   public void execute() {
-    new DepthTraversalTypeAwareCrawler(
-      new TypeAwareVisitorAdapter(CrawlerDepthLimit.LEAVES, ComponentVisitor.Order.PRE_ORDER) {
-        @Override
-        public void visitAny(Component component) {
-          copy(component);
-        }
-      }).visit(treeRootHolder.getRoot());
+    try (DbSession session = dbClient.openSession(false)) {
+
+      new DepthTraversalTypeAwareCrawler(
+        new TypeAwareVisitorAdapter(CrawlerDepthLimit.MODULE, ComponentVisitor.Order.PRE_ORDER) {
+          @Override
+          public void visitAny(Component component) {
+            copy(component, session);
+          }
+        }).visit(treeRootHolder.getRoot());
+    }
   }
 
-  private void copy(Component component) {
-    for (CustomMeasureDto dto : loadCustomMeasures(component)) {
+  private void copy(Component component, DbSession session) {
+    for (CustomMeasureDto dto : loadCustomMeasures(component, session)) {
       Metric metric = metricRepository.getById(dto.getMetricId());
       // else metric is not found and an exception is raised
       Measure measure = dtoToMeasure(dto, metric);
@@ -72,10 +75,8 @@ public class CustomMeasuresCopyStep implements ComputationStep {
     }
   }
 
-  private List<CustomMeasureDto> loadCustomMeasures(Component component) {
-    try (DbSession session = dbClient.openSession(false)) {
-      return dbClient.customMeasureDao().selectByComponentUuid(session, component.getUuid());
-    }
+  private List<CustomMeasureDto> loadCustomMeasures(Component component, DbSession session) {
+    return dbClient.customMeasureDao().selectByComponentUuid(session, component.getUuid());
   }
 
   @VisibleForTesting
