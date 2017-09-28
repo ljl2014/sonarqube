@@ -30,6 +30,7 @@ import { Link } from 'react-router';
 
 interface Props {
   branches: Branch[];
+  canAdmin?: boolean;
   component: { key: string };
   onBranchesChange: () => void;
 }
@@ -71,6 +72,30 @@ export default class App extends React.PureComponent<Props, State> {
     );
   }
 
+  renderBranchLifeTime() {
+    const { branchLifeTime } = this.state;
+    if (!branchLifeTime) {
+      return null;
+    }
+
+    const messageKey = this.props.canAdmin
+      ? 'project_branches.page.life_time.admin'
+      : 'project_branches.page.life_time';
+
+    return (
+      <p className="page-description">
+        <FormattedMessage
+          defaultMessage={translate(messageKey)}
+          id={messageKey}
+          values={{
+            days: formatMeasure(this.state.branchLifeTime, 'INT'),
+            settings: <Link to="/admin/settings">{translate('settings.page')}</Link>
+          }}
+        />
+      </p>
+    );
+  }
+
   render() {
     const { branches, component, onBranchesChange } = this.props;
 
@@ -91,18 +116,7 @@ export default class App extends React.PureComponent<Props, State> {
           <h1 className="page-title">{translate('project_branches.page')}</h1>
           <LongBranchesPattern project={component.key} />
           <p className="page-description">{translate('project_branches.page.description')}</p>
-          {this.state.branchLifeTime && (
-            <p className="page-description">
-              <FormattedMessage
-                defaultMessage={translate('project_branches.page.life_time')}
-                id="project_branches.page.life_time"
-                values={{
-                  days: formatMeasure(this.state.branchLifeTime, 'INT'),
-                  settings: <Link to="/admin/settings">{translate('settings.page')}</Link>
-                }}
-              />
-            </p>
-          )}
+          {this.renderBranchLifeTime()}
         </header>
 
         <table className="data zebra zebra-hover">
