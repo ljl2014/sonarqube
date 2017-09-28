@@ -19,7 +19,7 @@ exports[`renders background task in progress info correctly 1`] = `
   className="alert alert-info"
 >
   <i
-    className="spinner spacer-right"
+    className="spinner spacer-right text-bottom"
   />
   <span
     dangerouslySetInnerHTML={
@@ -28,6 +28,25 @@ exports[`renders background task in progress info correctly 1`] = `
       }
     }
   />
+</NavBarNotif>
+`;
+
+exports[`renders background task license info correctly 1`] = `
+<NavBarNotif
+  className="alert alert-danger"
+>
+  <span>
+    Foo
+  </span>
+  <Link
+    className="little-spacer-left"
+    onlyActiveOnIndex={false}
+    style={Object {}}
+    to="/admin/extension/license/app"
+  >
+    license.component_navigation.button.LICENSING
+    .
+  </Link>
 </NavBarNotif>
 `;
 

@@ -37,6 +37,7 @@ export interface PendingTask {
 export interface Task extends PendingTask {
   analysisId?: string;
   errorMessage?: string;
+  errorType?: string;
   executionTimeMs: number;
   executedAt: Date;
   hasErrorStacktrace: boolean;
