@@ -29,6 +29,7 @@ import DeleteIcon from '../../../components/icons-components/DeleteIcon';
 import { translate } from '../../../helpers/l10n';
 import Tooltip from '../../../components/controls/Tooltip';
 import RenameBranchModal from './RenameBranchModal';
+import DateFromNow from '../../../components/intl/DateFromNow';
 
 interface Props {
   branch: Branch;
@@ -99,6 +100,9 @@ export default class BranchRow extends React.PureComponent<Props, State> {
         </td>
         <td className="thin nowrap text-right">
           <BranchStatus branch={branch} />
+        </td>
+        <td className="thin nowrap text-right">
+          {branch.analysisDate && <DateFromNow date={branch.analysisDate} />}
         </td>
         <td className="thin nowrap text-right">
           {branch.isMain ? (

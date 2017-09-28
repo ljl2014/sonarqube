@@ -33,6 +33,9 @@ exports[`renders main branch 1`] = `
   </td>
   <td
     className="thin nowrap text-right"
+  />
+  <td
+    className="thin nowrap text-right"
   >
     <Tooltip
       overlay="branches.rename"
@@ -56,6 +59,7 @@ exports[`renders short-living branch 1`] = `
     <BranchIcon
       branch={
         Object {
+          "analysisDate": "2017-09-27T00:05:19+0000",
           "isMain": false,
           "mergeBranch": "foo",
           "name": "feature",
@@ -72,12 +76,20 @@ exports[`renders short-living branch 1`] = `
     <BranchStatus
       branch={
         Object {
+          "analysisDate": "2017-09-27T00:05:19+0000",
           "isMain": false,
           "mergeBranch": "foo",
           "name": "feature",
           "type": "SHORT",
         }
       }
+    />
+  </td>
+  <td
+    className="thin nowrap text-right"
+  >
+    <DateFromNow
+      date="2017-09-27T00:05:19+0000"
     />
   </td>
   <td
