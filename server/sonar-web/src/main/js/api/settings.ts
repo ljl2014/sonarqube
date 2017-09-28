@@ -66,9 +66,10 @@ export function setSettingValue(
 }
 
 export function setSimpleSettingValue(parameters: {
-  key: string;
-  value: string;
+  branch?: string;
   component?: string;
+  value: string;
+  key: string;
 }): Promise<void | Response> {
   return post('/api/settings/set', parameters).catch(throwGlobalError);
 }

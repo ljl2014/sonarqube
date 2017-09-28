@@ -21,9 +21,10 @@ import * as React from 'react';
 import { Branch } from '../../../app/types';
 import * as classNames from 'classnames';
 import DeleteBranchModal from './DeleteBranchModal';
+import LeakPeriodForm from './LeakPeriodForm';
 import BranchStatus from '../../../components/common/BranchStatus';
 import BranchIcon from '../../../components/icons-components/BranchIcon';
-import { isShortLivingBranch } from '../../../helpers/branches';
+import { isShortLivingBranch, isLongLivingBranch } from '../../../helpers/branches';
 import { translate } from '../../../helpers/l10n';
 import RenameBranchModal from './RenameBranchModal';
 import DateFromNow from '../../../components/intl/DateFromNow';
@@ -36,13 +37,14 @@ interface Props {
 }
 
 interface State {
+  changingLeak: boolean;
   deleting: boolean;
   renaming: boolean;
 }
 
 export default class BranchRow extends React.PureComponent<Props, State> {
   mounted: boolean;
-  state: State = { deleting: false, renaming: false };
+  state: State = { changingLeak: false, deleting: false, renaming: false };
 
   componentDidMount() {
     this.mounted = true;
@@ -79,6 +81,18 @@ export default class BranchRow extends React.PureComponent<Props, State> {
     this.setState({ renaming: false });
   };
 
+  handleChangeLeakClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
+    event.currentTarget.blur();
+    this.setState({ changingLeak: true });
+  };
+
+  handleChangingLeakStop = () => {
+    if (this.mounted) {
+      this.setState({ changingLeak: false });
+    }
+  };
+
   render() {
     const { branch, component } = this.props;
 
@@ -110,6 +124,16 @@ export default class BranchRow extends React.PureComponent<Props, State> {
               <SettingsIcon style={{ marginTop: 4 }} /> <i className="icon-dropdown" />
             </button>
             <ul className="dropdown-menu dropdown-menu-right">
+              {isLongLivingBranch(branch) && (
+                <li>
+                  <a
+                    className="js-rename link-no-underline"
+                    href="#"
+                    onClick={this.handleChangeLeakClick}>
+                    {translate('branches.set_leak_period')}
+                  </a>
+                </li>
+              )}
               {branch.isMain ? (
                 <li>
                   <a
@@ -148,6 +172,14 @@ export default class BranchRow extends React.PureComponent<Props, State> {
             component={component}
             onClose={this.handleRenamingStop}
             onRename={this.handleChange}
+          />
+        )}
+
+        {this.state.changingLeak && (
+          <LeakPeriodForm
+            branch={branch.name}
+            onClose={this.handleChangingLeakStop}
+            project={component}
           />
         )}
       </tr>
