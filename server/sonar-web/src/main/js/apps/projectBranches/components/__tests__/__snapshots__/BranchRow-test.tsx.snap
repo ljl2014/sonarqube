@@ -37,18 +37,39 @@ exports[`renders main branch 1`] = `
   <td
     className="thin nowrap text-right"
   >
-    <Tooltip
-      overlay="branches.rename"
-      placement="bottom"
+    <div
+      className="dropdown big-spacer-left"
     >
-      <a
-        className="js-rename link-no-underline"
-        href="#"
-        onClick={[Function]}
+      <button
+        className="dropdown-toggle little-spacer-right button-compact"
+        data-toggle="dropdown"
       >
-        <ChangeIcon />
-      </a>
-    </Tooltip>
+        <SettingsIcon
+          style={
+            Object {
+              "marginTop": 4,
+            }
+          }
+        />
+         
+        <i
+          className="icon-dropdown"
+        />
+      </button>
+      <ul
+        className="dropdown-menu dropdown-menu-right"
+      >
+        <li>
+          <a
+            className="js-rename link-no-underline"
+            href="#"
+            onClick={[Function]}
+          >
+            branches.rename
+          </a>
+        </li>
+      </ul>
+    </div>
   </td>
 </tr>
 `;
@@ -95,18 +116,39 @@ exports[`renders short-living branch 1`] = `
   <td
     className="thin nowrap text-right"
   >
-    <Tooltip
-      overlay="branches.delete"
-      placement="bottom"
+    <div
+      className="dropdown big-spacer-left"
     >
-      <a
-        className="js-delete link-no-underline"
-        href="#"
-        onClick={[Function]}
+      <button
+        className="dropdown-toggle little-spacer-right button-compact"
+        data-toggle="dropdown"
       >
-        <DeleteIcon />
-      </a>
-    </Tooltip>
+        <SettingsIcon
+          style={
+            Object {
+              "marginTop": 4,
+            }
+          }
+        />
+         
+        <i
+          className="icon-dropdown"
+        />
+      </button>
+      <ul
+        className="dropdown-menu dropdown-menu-right"
+      >
+        <li>
+          <a
+            className="js-delete link-no-underline"
+            href="#"
+            onClick={[Function]}
+          >
+            branches.delete
+          </a>
+        </li>
+      </ul>
+    </div>
   </td>
 </tr>
 `;

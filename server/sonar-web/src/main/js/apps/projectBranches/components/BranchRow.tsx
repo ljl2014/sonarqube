@@ -24,12 +24,10 @@ import DeleteBranchModal from './DeleteBranchModal';
 import BranchStatus from '../../../components/common/BranchStatus';
 import BranchIcon from '../../../components/icons-components/BranchIcon';
 import { isShortLivingBranch } from '../../../helpers/branches';
-import ChangeIcon from '../../../components/icons-components/ChangeIcon';
-import DeleteIcon from '../../../components/icons-components/DeleteIcon';
 import { translate } from '../../../helpers/l10n';
-import Tooltip from '../../../components/controls/Tooltip';
 import RenameBranchModal from './RenameBranchModal';
 import DateFromNow from '../../../components/intl/DateFromNow';
+import SettingsIcon from '../../../components/icons-components/SettingsIcon';
 
 interface Props {
   branch: Branch;
@@ -105,19 +103,34 @@ export default class BranchRow extends React.PureComponent<Props, State> {
           {branch.analysisDate && <DateFromNow date={branch.analysisDate} />}
         </td>
         <td className="thin nowrap text-right">
-          {branch.isMain ? (
-            <Tooltip overlay={translate('branches.rename')}>
-              <a className="js-rename link-no-underline" href="#" onClick={this.handleRenameClick}>
-                <ChangeIcon />
-              </a>
-            </Tooltip>
-          ) : (
-            <Tooltip overlay={translate('branches.delete')}>
-              <a className="js-delete link-no-underline" href="#" onClick={this.handleDeleteClick}>
-                <DeleteIcon />
-              </a>
-            </Tooltip>
-          )}
+          <div className="dropdown big-spacer-left">
+            <button
+              className="dropdown-toggle little-spacer-right button-compact"
+              data-toggle="dropdown">
+              <SettingsIcon style={{ marginTop: 4 }} /> <i className="icon-dropdown" />
+            </button>
+            <ul className="dropdown-menu dropdown-menu-right">
+              {branch.isMain ? (
+                <li>
+                  <a
+                    className="js-rename link-no-underline"
+                    href="#"
+                    onClick={this.handleRenameClick}>
+                    {translate('branches.rename')}
+                  </a>
+                </li>
+              ) : (
+                <li>
+                  <a
+                    className="js-delete link-no-underline"
+                    href="#"
+                    onClick={this.handleDeleteClick}>
+                    {translate('branches.delete')}
+                  </a>
+                </li>
+              )}
+            </ul>
+          </div>
         </td>
 
         {this.state.deleting && (
